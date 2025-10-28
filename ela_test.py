@@ -6,33 +6,33 @@ import io
 def ela(image_path, quality=90):
     try:
         raw_image = Image.open(image_path)
-        quantization_tables = getattr(raw_image, 'quantization', None)
+        quantization_tables = getattr(raw_image, 'quantization', None) #fetches image's existing q-tables
 
         original_image = raw_image.convert('RGB')
 
         buffer = io.BytesIO()
         if quantization_tables:
-            original_image.save(buffer, 'JPEG', qtables=quantization_tables)
+            original_image.save(buffer, 'JPEG', qtables=quantization_tables) #Uses q-table for recompression
         else:
-            original_image.save(buffer, 'JPEG', quality=quality)
+            original_image.save(buffer, 'JPEG', quality=quality) #if no q-table not found, use default quality for recompression
         buffer.seek(0)
         compressed_image = Image.open(buffer).convert('RGB')
 
-        ela_image = ImageChops.difference(original_image, compressed_image)
+        ela_image = ImageChops.difference(original_image, compressed_image) #difference of image pixels
 
         extrema = ela_image.getextrema()
         max_diff = max([ex[1] for ex in extrema])
         scale = 255 / max_diff if max_diff != 0 else 1
 
-        ela_array = np.array(ela_image, dtype=np.int16)
+        ela_array = np.array(ela_image, dtype=np.int16) #converts to array for numerical metrics before image scaling
 
-        per_pixel_max = ela_array.max(axis=2).astype(np.float32)
+        per_pixel_max = ela_array.max(axis=2).astype(np.float32) #gets max pixel values from the 3 color channels
 
-        ela_image = ImageEnhance.Brightness(ela_image).enhance(scale)
+        ela_image = ImageEnhance.Brightness(ela_image).enhance(scale) #scales image brightness for visual output
 
-        floor = max(5, np.percentile(per_pixel_max, 10))
-        content_mask = per_pixel_max > floor
-        thr = np.percentile(per_pixel_max[content_mask], 98)
+        floor = max(5, np.percentile(per_pixel_max, 10)) #floor value for pixel to be considered bright, max between 5 or value at 10th percentile
+        content_mask = per_pixel_max > floor #all pixel values greater than floor = True, below = False
+        thr = np.percentile(per_pixel_max[content_mask], 98) #threshold for brightness is all pixel values above 98th percentile
 
 
         mean_intensity = float(np.mean(per_pixel_max))
