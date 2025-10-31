@@ -32,12 +32,11 @@ def ela(image_path, quality=90):
 
         floor = max(5, np.percentile(per_pixel_max, 10)) #floor value for pixel to be considered bright, max between 5 or value at 10th percentile
         content_mask = per_pixel_max > floor #all pixel values greater than floor = True, below = False
-        thr = np.percentile(per_pixel_max[content_mask], 98) #threshold for brightness is all pixel values above 98th percentile
-
 
         mean_intensity = float(np.mean(per_pixel_max))
         std_dev = float(np.std(per_pixel_max))
         if np.sum(content_mask) > 0:
+            thr = np.percentile(per_pixel_max[content_mask],98)  # threshold for brightness is all pixel values above 98th percentile
             bright_ratio = float(np.sum(per_pixel_max[content_mask] > thr) / np.sum(content_mask)*100)
         else:
             bright_ratio = 0.0
@@ -52,7 +51,7 @@ def ela(image_path, quality=90):
         return None
 
 if __name__ == "__main__":
-    input_path = "testcase3.jpg"
+    input_path = "whatsapp.jpeg"
 
     ela_result_metrics, ela_result_image = ela(input_path)
 
