@@ -55,7 +55,7 @@ class ELA:
             return None
 
 if __name__ == "__main__":
-    input_path = "testcase3.jpg"
+    input_path = "original.jpg"
 
     ela_result_metrics, ela_result_image = ELA.ela(input_path)
 
