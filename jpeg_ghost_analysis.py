@@ -1,4 +1,4 @@
-from ela_test import ELA
+from dqt_aware_ela_test import ELA
 
 class GHOST:
     @staticmethod
