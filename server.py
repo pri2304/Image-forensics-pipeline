@@ -6,7 +6,7 @@ import uuid
 from fastapi import FastAPI, UploadFile, File
 from noise_analysis_test import NoiseAnalysis
 from jpeg_ghost_analysis import GHOST
-from metadata_analysis_final import MetadataForensics
+from metadata_analysis_final import Metadata
 from dqt_aware_ela_test import ELA
 from NLF import NLF
 from DCT import DCT
@@ -39,13 +39,6 @@ def run_timed_test(test_name, test_func, image_path):
             "time_taken": round(time.time() - start, 4)
         }
 
-def run_metadata_wrapper(image_path):
-    try:
-        tool = MetadataForensics(image_path)
-        return tool.run_test()
-    except TypeError:
-        return MetadataForensics().run_test(image_path)
-
 @app.post("/analyze")
 def analyze_image(file: UploadFile = File(...)):
     unique_filename = f"temp_{uuid.uuid4().hex}_{file.filename}"
@@ -58,7 +51,7 @@ def analyze_image(file: UploadFile = File(...)):
 
         job_list = [("DQT aware ELA", ELA.ela),
                     ("JPEG Ghost", GHOST.jpeg_ghost),
-                    ("Metadata", run_metadata_wrapper),
+                    ("Metadata", Metadata.analyze),
                     ("Exposure Check", NoiseAnalysis.exposure_check),
                     ("Laplacian", NoiseAnalysis.laplacian_check),
                     ("Median", NoiseAnalysis.median_check),
