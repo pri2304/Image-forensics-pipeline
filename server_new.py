@@ -21,7 +21,7 @@ from NLF import NLF
 from DCT import DCT
 from GAN_frequency import GANMonitor
 
-# --- 2. CONFIGURATION ---
+# --- 2. CONFIGURATION --- Change paths of models as saved, no need for results since we are not saving images
 DEVICE = "cpu"
 torch.set_num_threads(1)
 
@@ -38,14 +38,14 @@ app = FastAPI()
 # Access via: http://server_ip:8000/results/filename.png
 app.mount("/results", StaticFiles(directory=RESULTS_DIR), name="results")
 
-# Global Models
+# Global Models (don't remove)
 cnn_model = None
 gbt_model = None
 cnn_transforms = None
 feature_columns = []
 
 
-# --- 3. CLEANUP TASK ---
+# --- 3. CLEANUP TASK --- Can remove
 def remove_file(path: str):
     """Background task to remove files after response is sent."""
     try:
@@ -55,7 +55,7 @@ def remove_file(path: str):
         print(f"Error cleaning up {path}: {e}")
 
 
-# --- 4. HELPER: SAVE IMAGE TO DISK ---
+# --- 4. HELPER: SAVE IMAGE TO DISK --- Not needed at all, related to images
 def save_visualization(obj, base_filename, suffix):
     """
     Saves PIL Image or BytesIO to disk and returns the URL.
@@ -85,7 +85,7 @@ def save_visualization(obj, base_filename, suffix):
         return None
 
 
-# --- 5. FLATTENER (Same as before) ---
+# --- 5. FLATTENER (Same as before) --- Need this, don't make changes to any actual values
 def flatten_data(prefix, data):
     flat = {}
     if data is None or not isinstance(data, dict): return flat
@@ -120,7 +120,7 @@ def flatten_data(prefix, data):
     return flat
 
 
-# --- 6. STARTUP ---
+# --- 6. STARTUP --- Need this for loading models
 @app.on_event("startup")
 def load_resources():
     global cnn_model, gbt_model, cnn_transforms, feature_columns
@@ -155,7 +155,7 @@ def load_resources():
         print(f"❌ GBT Error: {e}")
 
 
-# --- 7. TEST RUNNER ---
+# --- 7. TEST RUNNER --- Can use existing function
 def run_timed_test(test_name, test_func, image_path, request_id):
     """
     Runs test and saves visualization to disk.
@@ -179,7 +179,7 @@ def run_timed_test(test_name, test_func, image_path, request_id):
             "test_name": test_name,
             "status": "success",
             "data": data_payload,
-            "image_url": visual_url,  # URL path for frontend
+            "image_url": visual_url,  # URL path for frontend Not needed
             "time_taken": round(time.time() - start, 4)
         }
     except Exception as e:
@@ -194,7 +194,7 @@ def run_timed_test(test_name, test_func, image_path, request_id):
 # --- 8. MAIN ENDPOINT ---
 @app.post("/analyze")
 def analyze_image(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
-    # Create unique ID for this request
+    # Create unique ID for this request, not needed
     request_id = uuid.uuid4().hex
     unique_filename = f"temp_{request_id}_{file.filename}"
 
@@ -208,7 +208,7 @@ def analyze_image(background_tasks: BackgroundTasks, file: UploadFile = File(...
         server_start = time.time()
         full_report = {"filename": file.filename, "request_id": request_id}
 
-        # A. CNN
+        # A. CNN Don't remove
         cnn_score = 0.0
         if cnn_model:
             try:
@@ -221,7 +221,7 @@ def analyze_image(background_tasks: BackgroundTasks, file: UploadFile = File(...
             except Exception as e:
                 full_report["cnn_analysis"] = {"score": 0.0, "status": "error"}
 
-        # B. CPU Tests
+        # B. CPU Tests, use test names as you see fit
         job_list = [
             ("ela", ELA.ela),
             ("ghost", GHOST.jpeg_ghost),
@@ -247,7 +247,7 @@ def analyze_image(background_tasks: BackgroundTasks, file: UploadFile = File(...
 
         full_report["forensic_tests"] = raw_results
 
-        # C. GBT
+        # C. GBT, Don't remove
         flat_features = {"cnn_score": cnn_score}
         for prefix, res_obj in raw_results.items():
             if res_obj["status"] == "success":
