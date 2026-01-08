@@ -1,3 +1,7 @@
+shap
+seaborn
+scikit-learn
+xgboost
 torchvision
 joblib
 torch
