@@ -123,7 +123,7 @@ class DCT:
 
 
 if __name__ == "__main__":
-    input_path = "Testing Images/testcase4.jpg"
+    input_path = "testimage.jpg" #Image you want to test
     start_time = time.time()
 
     dct_metrics, dct_graph = DCT.dct_analyze(input_path)

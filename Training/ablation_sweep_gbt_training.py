@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 import xgboost as xgb
 import joblib
 
@@ -8,7 +7,7 @@ from sklearn.metrics import accuracy_score, roc_auc_score
 
 # CONFIG
 
-INPUT_CSV = "/home/pri/PycharmProjects/forensicspipeline/Datasets/final_merged_dataset.csv"
+INPUT_CSV = "Datasets/final_merged_dataset.csv"
 
 TEST_SIZE = 0.15
 VAL_SIZE = 0.15
@@ -330,7 +329,7 @@ joblib.dump(
         "features": best_features,
         "auc": best_auc
     },
-    "/home/pri/PycharmProjects/forensicspipeline/Models/forensic_gbt_ablation_best.pkl"
+    "Models/forensic_gbt_ablation_best.pkl"
 )
 
 results_df.to_csv(

@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 import xgboost as xgb
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -32,6 +31,7 @@ REMOVE_TAGS = {
     "Low_Quality_spliced",
     "Low_quality_photos"
 }
+# Testing with only AI generated or GAN Images
 
 def train_forensic_gbt():
     print("--- Loading Dataset ---")

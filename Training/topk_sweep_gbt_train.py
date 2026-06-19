@@ -21,6 +21,8 @@ REMOVE_TAGS = {
     "Low_quality_photos"
 }
 
+# Testing with only AI generated or GAN Images
+
 # LOAD DATA
 
 print("\nLoading dataset...")

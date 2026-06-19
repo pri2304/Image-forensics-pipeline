@@ -15,7 +15,7 @@ from fastapi.background import BackgroundTasks
 from torchvision import transforms
 from PIL import Image
 
-# --- 1. IMPORT MODULES ---
+# IMPORT MODULES
 from noise_analysis_test import NoiseAnalysis
 from jpeg_ghost_analysis import GHOST
 from metadata_analysis_final import Metadata
@@ -24,7 +24,7 @@ from NLF import NLF
 from DCT import DCT
 from GAN_frequency import GANMonitor
 
-# --- 2. CONFIGURATION ---
+# CONFIGURATION
 DEVICE = "cpu"
 torch.set_num_threads(1)
 
@@ -50,7 +50,7 @@ gbt_explainer = None
 cnn_transforms = None
 feature_columns = []
 
-# --- SHAP FEATURE GROUPS ---
+# SHAP FEATURE GROUPS
 SHAP_FEATURE_GROUPS = {
     "cnn": {
         "cnn_score",
@@ -92,7 +92,7 @@ SHAP_FEATURE_GROUPS = {
     }
 }
 
-# --- 3. MODEL DEFINITION ---
+# MODEL DEFINITION
 class MultiHeadEfficientNet(nn.Module):
     def __init__(self):
         super().__init__()
@@ -114,7 +114,7 @@ class MultiHeadEfficientNet(nn.Module):
         return rf_logits, nat_score
 
 
-# --- 4. HELPER FUNCTIONS ---
+# HELPER FUNCTIONS
 def remove_file(path: str):
     try:
         if os.path.exists(path): os.remove(path)
@@ -142,7 +142,7 @@ def save_visualization(obj, base_filename, suffix):
 
 def compute_shap_summary(shap_map):
     """
-    Step 6: Aggregate SHAP behavior for audit / diagnostics.
+    Aggregate SHAP behavior for audit / diagnostics.
     Does NOT affect verdict.
     """
     impacts = [abs(v) for v in shap_map.values()]
@@ -246,7 +246,7 @@ def compute_grouped_directional_shap_metrics(shap_map):
 
     return grouped_metrics
 
-# --- 5. FLATTENER (Used for Prediction Input) ---
+# FLATTENER (Used for Prediction Input)
 def flatten_data(prefix, data):
     flat = {}
     if data is None or not isinstance(data, dict): return flat
@@ -281,7 +281,7 @@ def flatten_data(prefix, data):
     return flat
 
 
-# --- 6. SHAP INJECTOR (NEW) ---
+# SHAP INJECTOR
 def inject_shap_impacts(full_report, shap_map):
     """
     Traverses the full_report structure and replaces raw values with
@@ -363,7 +363,7 @@ def inject_shap_impacts(full_report, shap_map):
     return full_report
 
 
-# --- 7. STARTUP ---
+# 7. STARTUP
 @app.on_event("startup")
 def load_resources():
     global cnn_model, gbt_model, gbt_explainer, cnn_transforms, feature_columns
@@ -395,7 +395,7 @@ def load_resources():
         print(f"❌ GBT Error: {e}")
 
 
-# --- 8. RUNNER ---
+# RUNNER
 def run_timed_test(test_name, test_func, image_path, request_id):
     start = time.time()
     try:
@@ -414,7 +414,7 @@ def run_timed_test(test_name, test_func, image_path, request_id):
         return {"test_name": test_name, "status": "error", "error": str(e), "time_taken": round(time.time() - start, 4)}
 
 
-# --- 9. ENDPOINT ---
+# ENDPOINT
 @app.post("/analyze")
 def analyze_image(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
     request_id = uuid.uuid4().hex
@@ -486,7 +486,7 @@ def analyze_image(background_tasks: BackgroundTasks, file: UploadFile = File(...
                 "fake_probability": round(prob_fake * 100, 2),
             }
 
-            # --- SHAP CALCULATION ---
+            # SHAP CALCULATION
             if gbt_explainer:
                 try:
                     shap_vals = gbt_explainer.shap_values(input_df)
@@ -498,13 +498,13 @@ def analyze_image(background_tasks: BackgroundTasks, file: UploadFile = File(...
                     # Inject into Tree
                     full_report = inject_shap_impacts(full_report, shap_map)
 
-                    # --- STEP 6: SHAP AGGREGATE SIGNALS ---
+                    # SHAP AGGREGATE SIGNALS
                     full_report["shap_summary"] = compute_shap_summary(shap_map)
 
-                    # --- SHAP GROUPED SUMMARY ---
+                    # SHAP GROUPED SUMMARY
                     full_report["shap_group_summary"] = compute_grouped_shap_summary(shap_map)
 
-                    # --- SHAP DIRECTIONAL METRICS ---
+                    # SHAP DIRECTIONAL METRICS
                     full_report["shap_directional_summary"] = {
                         "global": compute_directional_shap_metrics(shap_map),
                         "by_group": compute_grouped_directional_shap_metrics(shap_map)

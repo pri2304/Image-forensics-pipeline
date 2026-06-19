@@ -10,13 +10,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, recall_score, classification_report, confusion_matrix
 import os
 import gc
-import numpy as np
 
-# 1. Prevent crashes on truncated/partial images
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-# ================= CONFIGURATION =================
-CSV_FILE = "/home/pri/PycharmProjects/videotojpeg/updated_cnn_dataset_v3.csv"
+# CONFIGURATION
+CSV_FILE = "Datasets/final_cnn_dataset" #Dataset
 MODEL_SAVE_PATH = "Models/efficientnet_b4_multihead_best.pth"
 
 # EfficientNet-B4 Standards
@@ -40,9 +38,6 @@ TAG_WEIGHTS = {
     "Social_media_laundered_real": 3.0,
     "Social_media_laundered_fake": 1.5
 }
-
-
-# =================================================
 
 class MultiHeadEfficientNet(nn.Module):
     def __init__(self):
@@ -189,7 +184,7 @@ class ForensicEvalDataset(Dataset):
             return None
 
 
-# --- Custom Collate to skip None (Corrupt/Missing files) ---
+# Custom Collate to skip None (Corrupt/Missing files)
 def collate_fn(batch):
     batch = list(filter(lambda x: x is not None, batch))
     if len(batch) == 0:
@@ -240,7 +235,7 @@ def train_and_eval():
 
     print(f"Train: {len(train_df)} | Val: {len(val_df)}")
 
-    # === EfficientNet Standard Normalization ===
+    # EfficientNet Standard Normalization
     train_transforms = transforms.Compose([
         transforms.Resize((400, 400)),
         transforms.RandomCrop(IMG_SIZE),
@@ -304,7 +299,7 @@ def train_and_eval():
         loop = tqdm(train_loader, desc=f"Epoch {epoch + 1}/{EPOCHS}", total=len(train_loader))
 
         for i, batch in enumerate(loop):
-            # FIXED: Check if batch[0] (images) is empty (len==0)
+            # FIX: Check if batch[0] (images) is empty (len==0)
             if batch is None or len(batch) < 3 or len(batch[0]) == 0:
                 continue
 
@@ -350,7 +345,7 @@ def train_and_eval():
 
         with torch.no_grad():
             for batch in val_loader:
-                # FIXED: Check if batch[0] (images) is empty
+                # FIX: Check if batch[0] (images) is empty
                 if batch is None or len(batch) < 3 or len(batch[0]) == 0:
                     continue
                 images, labels_rf, labels_nat = batch
@@ -395,7 +390,7 @@ def train_and_eval():
 
         with torch.no_grad():
             for batch in tqdm(eval_loader, desc="Evaluating"):
-                # FIXED: Check if batch[0] (images) is empty
+                # FIX: Check if batch[0] (images) is empty
                 if batch is None or len(batch) < 3 or len(batch[0]) == 0:
                     continue
 

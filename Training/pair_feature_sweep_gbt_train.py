@@ -1,7 +1,5 @@
 import pandas as pd
-import numpy as np
 import xgboost as xgb
-import joblib
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, roc_auc_score
@@ -21,6 +19,8 @@ REMOVE_TAGS = {
     "Low_Quality_spliced",
     "Low_quality_photos"
 }
+
+# Testing with only AI generated or GAN Images
 
 # LOAD DATA
 

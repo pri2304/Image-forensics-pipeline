@@ -79,7 +79,7 @@ def get_cnn_score(image_path, model, transform, device):
 if __name__ == "__main__":
     # Settings
     MODEL_FILE = "Models/efficientnet_b4_forensics_best.pth"
-    TEST_IMAGE = "Testing Images/testcase12.jpeg"  # Change this to a real file to test
+    TEST_IMAGE = "testimage.jpg" #Image you want to test
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # 1. Init

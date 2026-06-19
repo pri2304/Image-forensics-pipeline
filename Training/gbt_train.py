@@ -1,23 +1,20 @@
 import pandas as pd
-import numpy as np
 import xgboost as xgb
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import (accuracy_score, classification_report, confusion_matrix,
+from sklearn.metrics import (accuracy_score, confusion_matrix,
                              roc_curve, auc, precision_recall_curve, average_precision_score)
 import joblib
 import os
 
-# ================= CONFIGURATION =================
+#CONFIGURATION
 INPUT_CSV = "Datasets/final_merged_dataset.csv"
 MODEL_PKL_PATH = "Models/forensic_gbt_model.pkl"
-FEATURE_CSV_PATH = "../GBT Stuff/feature_importance_full.csv"  # <-- NEW: Saves full list here
+FEATURE_CSV_PATH = "Datasets/feature_importance_full.csv"  # <-- NEW: Saves full list here
 TEST_SIZE = 0.15
 VAL_SIZE = 0.15
 
-
-# =================================================
 
 def train_forensic_gbt():
     print("--- Loading Dataset ---")
@@ -28,7 +25,7 @@ def train_forensic_gbt():
     df = pd.read_csv(INPUT_CSV)
     print(f"Loaded {len(df)} samples.")
 
-    # 1. SETUP FEATURES
+    # SETUP FEATURES
     ignore_cols = ['path', 'label_str', 'tag1', 'time', 'label']
     feature_cols = [c for c in df.columns if c not in ignore_cols]
 
@@ -36,7 +33,7 @@ def train_forensic_gbt():
     y = df['label']
     tags = df['tag1']
 
-    # 2. STRATIFIED SPLIT
+    # STRATIFIED SPLIT
     print("\n--- Splitting Dataset ---")
     try:
         X_temp, X_test, y_temp, y_test, tags_temp, tags_test = train_test_split(
@@ -56,7 +53,7 @@ def train_forensic_gbt():
 
     print(f"Train: {len(X_train)} | Val: {len(X_val)} | Test: {len(X_test)}")
 
-    # 3. TRAIN XGBOOST
+    # TRAIN XGBOOST
     print("\n--- Training GBT ---")
     model = xgb.XGBClassifier(
         n_estimators=1000,
@@ -75,11 +72,11 @@ def train_forensic_gbt():
         verbose=100
     )
 
-    # 4. PREDICTIONS
+    # PREDICTIONS
     y_pred = model.predict(X_test)
     y_prob = model.predict_proba(X_test)[:, 1]
 
-    # ================= FULL FEATURE IMPORTANCE =================
+    # FULL FEATURE IMPORTANCE
     print("\n" + "=" * 40)
     print("FULL FEATURE IMPORTANCE RANKING")
     print("=" * 40)
@@ -99,7 +96,7 @@ def train_forensic_gbt():
     print(feat_df)
     pd.reset_option('display.max_rows')  # Reset to default
 
-    # ================= VISUALIZATION BLOCK =================
+    # VISUALIZATION BLOCK
     print("\n--- Generating Graphs ---")
 
     # Graph A: Feature Importance (Top 25)
@@ -160,7 +157,7 @@ def train_forensic_gbt():
 
     print("✅ All 5 graphs saved.")
 
-    # ================= DETAILED METRICS =================
+    # DETAILED METRICS
     print("\n" + "=" * 40)
     print("DETAILED METRICS")
     print("=" * 40)
@@ -180,7 +177,7 @@ def train_forensic_gbt():
     print(f"False Positive Rate (Real flagged as Fake): {fpr_rate:.4f}")
     print(f"False Negative Rate (Fake flagged as Real): {fnr_rate:.4f}")
 
-    # ================= TAG ANALYSIS =================
+    # TAG ANALYSIS
     print("\n--- Accuracy by Generator/Tag ---")
     results_df = pd.DataFrame({'Tag': tags_test, 'True': y_test, 'Pred': y_pred})
     results_df['Correct'] = results_df['True'] == results_df['Pred']
@@ -198,7 +195,7 @@ def train_forensic_gbt():
         acc_str = f"{row['Accuracy'] * 100:.1f}%"
         print(f"{tag:<30} | {row['Count']:<6} | {acc_str:<9} | {int(row['FalsePos']):<4} | {int(row['FalseNeg']):<4}")
 
-    # 6. SAVE MODEL
+    # SAVE MODEL
     joblib.dump(model, MODEL_PKL_PATH)
     print(f"\n✅ Model saved to {MODEL_PKL_PATH}")
 
