@@ -1,4 +1,4 @@
-from dqt_aware_ela_test import ELA
+from forensic_tests.dqt_aware_ela_test import ELA
 import time
 
 class GHOST:

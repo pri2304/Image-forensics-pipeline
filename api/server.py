@@ -16,13 +16,13 @@ from torchvision import transforms
 from PIL import Image
 
 # IMPORT MODULES
-from noise_analysis_test import NoiseAnalysis
-from jpeg_ghost_analysis import GHOST
-from metadata_analysis_final import Metadata
-from dqt_aware_ela_test import ELA
-from NLF import NLF
-from DCT import DCT
-from GAN_frequency import GANMonitor
+from forensic_tests.noise_analysis_test import NoiseAnalysis
+from forensic_tests.jpeg_ghost_analysis import GHOST
+from forensic_tests.metadata_analysis_final import Metadata
+from forensic_tests.dqt_aware_ela_test import ELA
+from forensic_tests.NLF import NLF
+from forensic_tests.DCT import DCT
+from forensic_tests.GAN_frequency import GANMonitor
 
 # CONFIGURATION
 DEVICE = "cpu"
@@ -363,7 +363,7 @@ def inject_shap_impacts(full_report, shap_map):
     return full_report
 
 
-# 7. STARTUP
+# STARTUP
 @app.on_event("startup")
 def load_resources():
     global cnn_model, gbt_model, gbt_explainer, cnn_transforms, feature_columns
